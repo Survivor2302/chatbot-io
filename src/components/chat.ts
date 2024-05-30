@@ -1,4 +1,4 @@
-import { messageCard } from './messageCard';
+import { messageCard } from './cards/message.card';
 import { Conversation } from '../types/convesation.type';
 
 export function chat(conversation: Conversation) {

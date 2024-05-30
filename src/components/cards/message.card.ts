@@ -1,4 +1,4 @@
-import { Message } from "../types/message.type";
+import { Message } from "../../types/message.type";
 
 export const messageCard = (message: Message) => {
   return `

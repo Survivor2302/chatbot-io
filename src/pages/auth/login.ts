@@ -1,13 +1,9 @@
 import { authService } from "../../scripts/services/auth.service";
 
 export const login = () => {
-    authService.init();
-    function handleLogin() {
-        const username = (document.querySelector('#username') as HTMLInputElement).value;
-        const password = (document.querySelector('#password') as HTMLInputElement).value;
-        authService.signIn(username, password);
-    }
-    (window as any).handleLogin = handleLogin;
+    document.addEventListener('DOMContentLoaded', () => {
+        authService.init();
+    });
 
     return `
         <h1>Login</h1>
@@ -21,9 +17,10 @@ export const login = () => {
                 <input type="password" id="password" name="password" required>
             </div>
             <div>
-                <button onclick="handleLogin()">Sign In</button>
+                <button onclick="login()">Sign In</button>
             </div>
         </form>
+        <button onclick="clear_local_storage()">Clear Storage</button>
     `;
 }
 

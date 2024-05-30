@@ -5,8 +5,9 @@ import { conversationService } from '../scripts/services/conversation.service';
 
 export const home = () => {
     conversationService.init();
-    const contacts = conversationService.getContacts();
-    const conversations = conversationService.conversations;
+    
+    const contacts = conversationService.get_contacts();
+    const conversations = conversationService.user_conversations;
    
     
     return `
@@ -22,7 +23,7 @@ export const home = () => {
         </div>
       </div>
       <div>
-        <button onclick="signOut()">Sign In</button>
+        <button onclick="signOut()">Sign Out</button>
       </div>
     </div>
     `;

@@ -13,20 +13,16 @@ export const assistantBot: Bot<{
             try {
                 return eval(expression);
             } catch (error) {
-                console.error('Error in calculation:', error);
                 return "Calculation failed.";
             }
         },
         translate: async (sourceLang: string,targetLang: string,text: string) => {
             try {
-                console.log(encodeURIComponent(text));
                 const url = `https://api.mymemory.translated.net/get?q=${text.toString()}!&langpair=${sourceLang}|${targetLang}`;
-                console.log(url);
                 const response = await fetch(url);
                 const data = await response.json();
                 return data.responseData.translatedText;
             } catch (error) {
-                console.error('Error in translation:', error);
                 return "Translation failed.";
             }
         }
