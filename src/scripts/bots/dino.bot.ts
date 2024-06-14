@@ -1,15 +1,25 @@
 import { Bot } from "../../types/bot.type";
 
-export const assistantBot: Bot<{
-    hello: () => string;
+export const dinoBot: Bot<{
+    generate: () => Promise<string>;
     calc: (expression: string) => number | null;
     translate: (sourceLang: string,targetLang: string,text: string) => Promise<string>;
 }> = {    
-    name: 'Assistant',
-    avatar: 'https://static1.terrafemina.com/articles/7/11/35/37/@/107747-fete-des-secretaires-le-metier-evolue-les-stereotypes-restent-622x0-1.jpg',
+    name: 'Dino',
+    avatar: 'https://www.evasion-communication.com/content/filemanager/Dino-train-evasion-communication-mascotte-alphanim-expendo-organisation-event.jpg',
     command: {
-        hello: () => {
-            return 'Hello';
+        generate: async () => {
+            const url = ' http://dinotoapi.com/api/dinosaures/$'
+            const response = await fetch(url);
+            console.log(response);
+            const data = await response.json();
+
+            const randomIndex = Math.floor(Math.random() * 25) + 1;
+            console.log(data[randomIndex]);
+            console.log(data);
+            console.log(data.length);
+            const message = `Name: ${data[randomIndex].name}\nDescription: ${data[randomIndex].description}`;
+            return message;
         },
         calc: (expression: string) => {
             try {
@@ -29,7 +39,7 @@ export const assistantBot: Bot<{
             }
         },
         help: () => {
-            return 'Commands: hello, calc, translate';
+            return 'Commands: generate, calc, translate';
         }
     }
 };

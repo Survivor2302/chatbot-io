@@ -1,4 +1,9 @@
+type HelpCommand = {
+    help: () => void;
+};
+
 export type Bot<Commands> = {
     name: string;
-    command: Commands;
+    avatar: string;
+    command: Commands & HelpCommand;
 }

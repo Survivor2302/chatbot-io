@@ -31,9 +31,10 @@ export const conversationService = {
     
     create_or_retrieve_user_bot_conversation(user_id: string) {
         for (const bot of bots) {
-            let conversation = this.all_conversations.find(convo => convo.bot  === bot.name && convo.user_id === user_id);
+            console.log(this.all_conversations)
+            let conversation = this.all_conversations.find(convo => convo.bot.name  === bot.name && convo.user_id === user_id);
             if (!conversation) {
-                conversation = { user_id: user_id, bot: bot.name, messages: [] };
+                conversation = { user_id: user_id, bot: bot, messages: [] };
                 this.update_conversation(conversation);
             }
             this.user_conversations.push(conversation); 
@@ -53,6 +54,8 @@ export const conversationService = {
     get_contacts() {
         return this.user_conversations.map(conversation => conversation.bot);
     },
+
+
     
     clear_user_conversations() {
         this.user_conversations = [];
@@ -68,19 +71,20 @@ export const conversationService = {
     },
     
     select_contact(botName: string){
-        const conversation = this.user_conversations.find(convo => convo.bot  === botName);
+        const conversation = this.user_conversations.find(convo => convo.bot.name  === botName);
         if (conversation) {
             return conversation;
         }
     },
-    
-    //TODO: separate the function
- 
+     
     declare_function: function() {
         (window as any).selectContact = (botName: string) => {
-            const conversation = this.user_conversations.find(convo => convo.bot  === botName);
+            const conversation = this.user_conversations.find(convo => convo.bot.name  === botName);
             if (conversation) {
+                document.querySelector('.chat-name')!.innerHTML = botName;
                 document.querySelector('.chat-container')!.innerHTML = chat(conversation);
+                document.querySelector('.chat-container')!.scrollTop = document.querySelector('.chat-container')!.scrollHeight;
+
             }
         };
         
@@ -93,41 +97,69 @@ export const conversationService = {
         (window as any).sendMessage = async () => {
             const message = (document.querySelector('.chat-input') as HTMLInputElement).value;
             const botName = (document.querySelector('.chat-bot') as HTMLDivElement).innerHTML;
-            const conversation = this.user_conversations.find(convo => convo.bot === botName && convo.user_id === authService.get_current_user().id);
+            const conversation = this.user_conversations.find(convo => convo.bot.name === botName && convo.user_id === authService.get_current_user().id);
+
+            if (message === 'help') {
+                if (conversation) {
+                    conversation.messages.push({ content: message, isUser: true, time: new Date() });
+                    this.update_conversation(conversation);
+                    document.querySelector('.chat-container')!.innerHTML = chat(conversation);
+                    document.querySelector('.chat-container')!.scrollTop = document.querySelector('.chat-container')!.scrollHeight;
+                }
+
+                for (const bot of bots) {
+                    const conversation = this.user_conversations.find(convo => convo.bot.name === bot.name && convo.user_id === authService.get_current_user().id);
+                   if (conversation) {
+                    let response = await bot.command.help();
+                    conversation.messages.push({ content: response!, isUser: false, time: new Date() });
+                    this.update_conversation(conversation);
+                    
+                    if (conversation.bot.name === botName) {
+                        document.querySelector('.chat-container')!.innerHTML = chat(conversation);
+                            document.querySelector('.chat-container')!.scrollTop = document.querySelector('.chat-container')!.scrollHeight;
+                        }
+                    }
+                }
+            } else {
             if (conversation) {
                 conversation.messages.push({ content: message, isUser: true, time: new Date() });
                 this.update_conversation(conversation);
-                (document.querySelector('.chat-input') as HTMLInputElement).value = ''; // Clear input after sending
+                (document.querySelector('.chat-input') as HTMLInputElement).value = '';
                 document.querySelector('.chat-container')!.innerHTML = chat(conversation);
-                const bot = bots.find(bot => bot.name === conversation.bot);
+                const bot = bots.find(bot => bot.name === conversation.bot.name);
                 let response;
                 if (bot) {
-                    // Ensure the command exists in the bot's command object
                     if (bot.command.hasOwnProperty(message.split(' ')[0])) {
-                        // Extract the command and the expression from the message
                         const parts = message.split(' ');
                         const command = parts[0];
-                        const arg1 = parts[1]; // Premier argument
-                        const arg2 = parts[2]; // Deuxième argument
-                        const remainingArgs = parts.slice(3).join(' '); // Regroupe le reste en un seul argument
-                        const args = [arg1, arg2, remainingArgs]; // Crée un tableau avec les trois arguments
-                        
+                        const arg1 = parts[1];
+                        const arg2 = parts[2];
+                        const remainingArgs = parts.slice(3).join(' '); 
+                        const args = [arg1, arg2, remainingArgs]; 
                         if (bot.command.hasOwnProperty(command)) {
                             try {
-                                // Call the command function dynamically with all arguments
+                                //@ts-ignore
                                 response = await bot.command[command](...args);
+                                console.log(response);
+                           
                             } catch (error) {
                                 response = "Error executing command.";
                             }
                         } else {
                             response = "Command not found";
                         }
+                } else {
+                    response = 'Command not found make, ask for help';
                 }
             }
             conversation.messages.push({ content: response, isUser: false, time: new Date() });
-            this.update_conversation(conversation);
-            document.querySelector('.chat-container')!.innerHTML = chat(conversation);
+                this.update_conversation(conversation);
+                document.querySelector('.chat-container')!.innerHTML = chat(conversation);
+                document.querySelector('.chat-container')!.scrollTop = document.querySelector('.chat-container')!.scrollHeight;
+            }
         };
+        (document.querySelector('.chat-input') as HTMLInputElement).value = ''; 
+
     };
 }
 };
