@@ -23,6 +23,6 @@ export const jokeBot: Bot<{
             const data = await response.json();
             return data.setup + ' ' + data.delivery;
         },
-        help: () => 'Commands: frenchjoke, programmingjoke, darkjoke'
+        help: () => 'Commandes disponibles: frenchjoke, programmingjoke, darkjoke'
     }
 };

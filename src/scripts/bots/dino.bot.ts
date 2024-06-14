@@ -1,45 +1,51 @@
 import { Bot } from "../../types/bot.type";
 
+const API_KEY = 'V1NRdedILequm/VxtQ+/IA==xKXW2dSpwmdVPIXy';
+
 export const dinoBot: Bot<{
-    generate: () => Promise<string>;
-    calc: (expression: string) => number | null;
-    translate: (sourceLang: string,targetLang: string,text: string) => Promise<string>;
+    temp: (city: string) => Promise<string>;
+    wind_speed: (city: string) => Promise<string>;
+    humidity: (city: string) => Promise<string>;
 }> = {    
     name: 'Dino',
     avatar: 'https://www.evasion-communication.com/content/filemanager/Dino-train-evasion-communication-mascotte-alphanim-expendo-organisation-event.jpg',
     command: {
-        generate: async () => {
-            const url = ' http://dinotoapi.com/api/dinosaures/$'
-            const response = await fetch(url);
-            console.log(response);
+        temp: async (city: string) => {
+            const url = `https://api.api-ninjas.com/v1/weather?city=${city}`;
+            const response = await fetch(url, {
+                headers: {
+                    'X-Api-Key': API_KEY,
+                    'Content-Type': 'application/json'
+                }
+            });
             const data = await response.json();
-
-            const randomIndex = Math.floor(Math.random() * 25) + 1;
-            console.log(data[randomIndex]);
             console.log(data);
-            console.log(data.length);
-            const message = `Name: ${data[randomIndex].name}\nDescription: ${data[randomIndex].description}`;
-            return message;
+            return data.error ? 'La température n\'est pas disponible' : `Il fait actuellement ${data.temp}°C à ${city}`;
         },
-        calc: (expression: string) => {
-            try {
-                return eval(expression);
-            } catch (error) {
-                return "Calculation failed.";
-            }
+        wind_speed: async (city: string) => {
+            const url = `https://api.api-ninjas.com/v1/weather?city=${city}`;
+            const response = await fetch(url, {
+                headers: {
+                    'X-Api-Key': API_KEY,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            return data.error ? 'Le vent n\'est pas disponible' : `Le vent à ${city} est de ${data.wind_speed} km/h`;
         },
-        translate: async (sourceLang: string,targetLang: string,text: string) => {
-            try {
-                const url = `https://api.mymemory.translated.net/get?q=${text.toString()}!&langpair=${sourceLang}|${targetLang}`;
-                const response = await fetch(url);
-                const data = await response.json();
-                return data.responseData.translatedText;
-            } catch (error) {
-                return "Translation failed.";
-            }
+        humidity: async (city: string) => {
+            const url = `https://api.api-ninjas.com/v1/weather?city=${city}`;
+            const response = await fetch(url, {
+                headers: {
+                    'X-Api-Key': API_KEY,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            return data.error ? 'L\'humidité n\'est pas disponible' : `L'humidité à ${city} est de ${data.humidity}%`;
         },
         help: () => {
-            return 'Commands: generate, calc, translate';
+            return 'Commandes disponibles: temp (ville), wind_speed (ville), humidity (ville)';
         }
     }
 };
